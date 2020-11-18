@@ -13,11 +13,12 @@ import moxy.ktx.moxyPresenter
 
 class MainActivity : MvpAppCompatActivity(), MainView {
 
-    private val REQUEST_READ_EXTERNAL_STORGE = 10001
-    private val REQUEST_WRITE_EXTERNAL_STORGE = 10002
+    private val PERMISSION_REQUEST_CODE = 10001
 
-    private val READ_EXTERNAL_STORAGE_PERMISSION = Manifest.permission.READ_EXTERNAL_STORAGE
-    private val WRITE_EXTERNAL_STORAGE_PERMISSION = Manifest.permission.WRITE_EXTERNAL_STORAGE
+    private val PERMISSIONS: Array<String> = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     private val presenter by moxyPresenter {
         MainPresenter(MainModel())
@@ -27,35 +28,55 @@ class MainActivity : MvpAppCompatActivity(), MainView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (isPermissionGranted(READ_EXTERNAL_STORAGE_PERMISSION)) {
+        if (isPermissionsGranted(PERMISSIONS)) {
             Toast.makeText(this, "Разрешения есть, можно работать", Toast.LENGTH_SHORT).show();
         } else {
-            requestPermission(READ_EXTERNAL_STORAGE_PERMISSION, REQUEST_READ_EXTERNAL_STORGE);
+            requestPermission(PERMISSIONS, PERMISSION_REQUEST_CODE);
         }
 
-        button.setOnClickListener {presenter.btnClick() }
+        button.setOnClickListener { presenter.btnClick() }
     }
 
-    private fun isPermissionGranted(permission: String): Boolean {
-        val permissionCheck = ActivityCompat.checkSelfPermission(this, permission)
+    private fun isPermissionsGranted(permission: Array<String>): Boolean {
+        var permissionCheck: Int = PackageManager.PERMISSION_GRANTED
+        for (permission in PERMISSIONS) {
+            permissionCheck += ActivityCompat.checkSelfPermission(this, permission)
+        }
         return permissionCheck == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_READ_EXTERNAL_STORGE) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSION_REQUEST_CODE && grantResults.size == 2) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this@MainActivity, "Разрешения получены", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    "Разрешение на чтение получено ",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
+            }
+            if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Разрешение на запись получено",
+                    Toast.LENGTH_LONG
+                )
+                    .show()
             } else {
-                Toast.makeText(this@MainActivity, "Разрешения не получены", Toast.LENGTH_LONG)
+                Toast.makeText(this@MainActivity, "Разрешение/я не получены", Toast.LENGTH_LONG)
                     .show()
             }
         } else {
-            super.onRequestPermissionsResult(requestCode, permissions!!, grantResults)
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 
-    private fun requestPermission(permission: String, requestCode: Int) {
-        ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
+    private fun requestPermission(permission: Array<String>, requestCode: Int) {
+        ActivityCompat.requestPermissions(this, permission, requestCode)
     }
 
     override fun setText(text: String) {

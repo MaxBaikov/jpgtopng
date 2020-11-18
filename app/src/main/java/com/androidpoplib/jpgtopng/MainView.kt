@@ -1,6 +1,5 @@
 package com.androidpoplib.jpgtopng
 
-import android.content.Context
 import android.graphics.Bitmap
 import moxy.MvpView
 import moxy.viewstate.strategy.AddToEndSingleStrategy

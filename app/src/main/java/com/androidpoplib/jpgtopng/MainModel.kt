@@ -7,15 +7,15 @@ import java.io.File
 
 class MainModel {
 
-    var path: String = File("/storage/emulated/0/download/bitmap.jpg").absolutePath
+    var readPath: String = File("/storage/emulated/0/download/bitmap.jpg").absolutePath
+    var writePath: String = File("/storage/emulated/0/download/bitmap.png").absolutePath
 
-
-    fun single(): Single<Bitmap>? = Single.fromCallable {
-        return@fromCallable BitmapFactory.decodeFile(path)
+    fun read(): Single<Bitmap>? = Single.fromCallable {
+        return@fromCallable BitmapFactory.decodeFile(readPath)
     }
 
+    fun write(fileContentAsArray: ByteArray) {
+    File(writePath).writeBytes(fileContentAsArray)
+}
 
-    //    var fname="/SD-карта/DCIM/Camera/20190805_135345.jpg"
-//    var bitmap1= BitmapFactory.decodeFile(fname)
-//    imageView2.setImageBitmap(bitmap1)
 }
